@@ -16,6 +16,7 @@ import Profile from './scenes/Profile/Profile';
 import Music from './scenes/Music/Music';
 import Photos from './scenes/Photos/Photos';
 import Friends from './scenes/Friends/Friends';
+import TakePhoto from './scenes/TakePhoto/TakePhoto';
 import Style from './Style';
 import menuIcon from './hamburguer.png';
 import backArrowIcon from './navigate-before.png';
@@ -34,15 +35,10 @@ export default class App extends Component {
         component: Profile,
         passProps: {
           profile: {
-            photoPath: '',
+            photoPath: null,
             name: 'Janet Sarmiento',
             username: 'janet.sarmiento',
             mobilePhone: null,
-          },
-          actions: {
-            editName: this.editName,
-            editUsername: this.editUsername,
-            editmobilePhone: this.editMobilePhone,
           },
         },
       },
@@ -58,6 +54,10 @@ export default class App extends Component {
         title: 'Friends',
         component: Friends,
       },
+      {
+        title: 'TakePhoto',
+        component: TakePhoto,
+      }
     ],
   };
 
@@ -71,32 +71,32 @@ export default class App extends Component {
     });
   };
 
-  editName = (name) => {
+  editPhoto = (photoPath) => {
     const {
       routes
     } = this.state;
 
-    const index = findIndexRoute(route, 'Profile');
-    routes[index].passProps.profile.name = name;
+    const index = findIndexRoute(routes, 'Profile');
+    routes[index].passProps.profile.photoPath = photoPath;
     this.setState({routes: routes});
   };
 
-  editUsername = () => {
+  editUsername = (username) => {
     const {
       routes
     } = this.state;
 
-    const index = findIndexRoute(route, 'Profile');
+    const index = findIndexRoute(routes, 'Profile');
     routes[index].passProps.profile.username = username;
     this.setState({routes: routes});
   };
 
-  editMobilePhone = () => {
+  editMobilePhone = (phone) => {
     const {
       routes
     } = this.state;
 
-    const index = findIndexRoute(route, 'Profile');
+    const index = findIndexRoute(routes, 'Profile');
     routes[index].passProps.profile.mobilePhone = mobilePhone;
     this.setState({routes: routes});
   };
@@ -107,7 +107,7 @@ export default class App extends Component {
     } = this.state;
 
     let RouteComponent = route.component;
-    return <RouteComponent navigator={navigator} routes={routes} title={route.title} {...route.passProps}/>
+    return <RouteComponent navigator={navigator} routes={routes} title={route.title} parent={this} {...route.passProps}/>
   };
 
   render() {
@@ -137,7 +137,7 @@ export default class App extends Component {
           return button;
         },
          RightButton: (route, navigator, index, navState) => {
-          return (<Text>Done</Text>);
+          return (<Text></Text>);
         },
          Title: (route, navigator, index, navState) =>
            { return (<Text style={Style.titleTextNavbar}>{route.title}</Text>); },

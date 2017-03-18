@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
 
 export default StyleSheet.create({
   profileScene: {
@@ -21,15 +21,21 @@ export default StyleSheet.create({
     alignItems: 'center',
   },
 
-  profilePhotoWrapper: {
+  profilePhotoIconWrapper: {
     padding: 20,
     borderRadius: 100,
     backgroundColor: '#EEEEEE',
   },
 
-  profilePhoto: {
+  profilePhotoIcon: {
     width: 100,
     height: 100,
+  },
+
+  profilePhoto: {
+    borderRadius: 100,
+    width: 150,
+    height: 150,
   },
 
   profilePhotoName:{
@@ -66,5 +72,91 @@ export default StyleSheet.create({
   profileInformationWrapper: {
     paddingVertical: 10,
     paddingHorizontal: 20,
+  },
+
+  profileModal: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    padding: 60,
+  },
+
+  profileModalWrapper: {
+    flex: 1,
+    alignItems: 'center',
+  },
+
+  profileModalImageWrapper: {
+    width: 230,
+    height: 180,
+  },
+
+  profileModalImage: {
+    height: '100%',
+    width: '100%',
+  },
+
+  profileModalTitle: {
+    marginTop: 20,
+    fontWeight: '800',
+    fontSize: 18,
+  },
+
+  profileModalTextInput: {
+    width: '100%',
+    marginVertical: 20,
+  },
+
+  profileModalCancelButton: {
+    marginVertical: 20,
+  },
+
+  profileModalPhotoWrapper: {
+    padding: 20,
+    borderRadius: 100,
+    backgroundColor: '#EEEEEE',
+    marginVertical: 30,
+  },
+
+  profileModalPhoto: {
+    width: 100,
+    height: 100,
+  },
+
+  profilePhotoCanvasModal: {
+    flex: 1,
+    backgroundColor: '#EEEEEE',
+    flexDirection: 'row',
+  },
+
+  previewPhoto: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    height: Dimensions.get('window').height,
+    width: Dimensions.get('window').width,
+  },
+
+  takePhotoButtonModal: {
+    position: 'absolute',
+    top: 20,
+    left: 20,
+  },
+
+  okButtonModal: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+  },
+
+  cancelButtonModal: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+  },
+
+  editPhotoButtonModal: {
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
   },
 });

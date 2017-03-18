@@ -6,7 +6,6 @@ export default class Friends extends Component {
   render() {
     const {
       title,
-      navigator,
     } = this.props;
 
     return (
