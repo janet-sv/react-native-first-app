@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { View, TextInput, Button, Text, BackAndroid, Image, ScrollView, TouchableHighlight, Modal } from 'react-native';
+import { View, TextInput, Button, Text, Image, ScrollView, TouchableHighlight, Modal, CameraRoll } from 'react-native';
 import Style from './Style';
 import HelperStyle from './../../styles/HelperStyle';
 import profileImage from './profile-image.png';
 import PhotoCanvas from './../../components/PhotoCanvas/PhotoCanvas';
 import TouchableIcon from './../../components/TouchableIcon/TouchableIcon';
+import PhotoGallery from './../../components/PhotoGallery/PhotoGallery';
 import findRoute from './../../utils/findRoute';
 import userIcon from './user-icon.png';
 import phoneIcon from './phone-icon.png';
@@ -24,9 +25,29 @@ export default class Profile extends Component {
     isOpenedTakePhotoModal: false,
     isOpenedPhotoCanvasModal: false,
     isOpenedPreviewPhotoModal: false,
+    isOpenedGalleryPhotoModal: false,
     username: this.props.profile.username,
     mobilePhone: this.props.profile.mobilePhone,
     photoPath: this.props.profile.photoPath,
+    firstPhotoPath: '',
+  };
+
+  componentWillMount() {
+    this.fetchFirstPhoto();
+  };
+
+  fetchFirstPhoto = () => {
+    const fetchParams = {
+      first: 1,
+    };
+
+    CameraRoll.getPhotos(fetchParams)
+    .then((data) => {
+      this.setState({
+        firstPhotoPath: data.edges[0].node.image.uri,
+      });
+    },
+    (e) => console.log('error'));
   };
 
   navigate = (title) => {
@@ -39,42 +60,86 @@ export default class Profile extends Component {
     navigator.push(route);
   };
 
-  goToTakePhoto = () => {
+  goToPhotoCanvas = () => {
     const {
       profile,
     } = this.props;
 
     this.setState({
-      isOpenedTakePhotoModal: false,
       isOpenedPhotoCanvasModal:true,
-      isOpenedPreviewPhotoModal: false,
       photoPath: profile.photoPath,
+    }, () => {
+      this.closePreviewPhotoModal();
+      this.closeTakePhotoModal();
     });
   };
 
-  closeModal = () => {
+  goToGallery = () => {
+    this.setState({
+      isOpenedGalleryPhotoModal: true,
+    }, () => {
+      this.closePreviewPhotoModal();
+      this.closeTakePhotoModal();
+    });
+  };
+
+  closeEditUsernameModal = () => {
     const {
       profile,
     } = this.props;
 
     this.setState({
       isOpenedEditUsernameModal: false,
-      isOpenedEditMobilePhoneModal: false,
-      isOpenedTakePhotoModal: false,
-      isOpenedPhotoCanvasModal: false,
-      isOpenedPreviewPhotoModal: false,
       username: profile.username,
+    });
+  };
+
+  closeEditMobilePhoneModal = () => {
+    const {
+      profile,
+    } = this.props;
+
+    this.setState({
+      isOpenedEditMobilePhoneModal: false,
       mobilePhone: profile.mobilePhone,
+    });
+  };
+
+  closeTakePhotoModal = () => {
+    this.setState({
+      isOpenedTakePhotoModal: false,
+    });
+  };
+
+  closePhotoCanvasModal = () => {
+    this.setState({
+      isOpenedPhotoCanvasModal: false,
+    });
+  };
+
+  closePreviewPhotoModal = () => {
+    const {
+      profile,
+    } = this.props;
+
+    this.setState({
+      isOpenedPreviewPhotoModal: false,
       photoPath: profile.photoPath,
+    });
+  };
+
+  closeGalleryPhotoModal = () => {
+    this.setState({
+      isOpenedGalleryPhotoModal: false,
     });
   };
 
   savePhotoPath = (path) => {
     this.setState({
+      firstPhotoPath: path,
       photoPath: path,
-      isOpenedPhotoCanvasModal: false,
       isOpenedPreviewPhotoModal: true,
-    });
+    }, this.closePhotoCanvasModal);
   };
 
   submitUsername = (e) => {
@@ -87,7 +152,7 @@ export default class Profile extends Component {
     } = this.state;
 
     parent.editUsername(username);
-    this.closeModal();
+    this.closeEditUsernameModal();
   };
 
   submitMobilePhone = (e) => {
@@ -100,7 +165,16 @@ export default class Profile extends Component {
     } = this.state;
 
     parent.editMobilePhone(mobilePhone);
-    this.closeModal();
+    this.closeEditMobilePhoneModal();
+  };
+
+  getPhotoFromGallery = (photoPath) => {
+    this.setState(
+      {photoPath: photoPath},
+      () => {
+        this.submitPhotoPath();
+        this.closeGalleryPhotoModal();
+      });
   };
 
   submitPhotoPath = (e) => {
@@ -113,7 +187,8 @@ export default class Profile extends Component {
     } = this.state;
 
     parent.editPhoto(photoPath);
-    this.closeModal();
+    this.closePreviewPhotoModal();
+    this.closePhotoCanvasModal();
   };
 
   render() {
@@ -128,9 +203,11 @@ export default class Profile extends Component {
       isOpenedTakePhotoModal,
       isOpenedPhotoCanvasModal,
       isOpenedPreviewPhotoModal,
+      isOpenedGalleryPhotoModal,
       username,
       mobilePhone,
       photoPath,
+      firstPhotoPath,
     } = this.state;
 
     const mobilePhoneText = profile.mobilePhone ? profile.mobilePhone : '---';
@@ -155,7 +232,7 @@ export default class Profile extends Component {
           />
           <Button title="ACCEPT" onPress={this.submitUsername}/>
           <TouchableHighlight
-            onPress={this.closeModal}
+            onPress={this.closeEditUsernameModal}
             underlayColor="transparent"
           >
             <Text style={Style.profileModalCancelButton}>NOT NOW</Text>
@@ -183,7 +260,7 @@ export default class Profile extends Component {
           />
           <Button title="ACCEPT" onPress={this.submitUsername}/>
           <TouchableHighlight
-            onPress={this.closeModal}
+            onPress={this.closeEditMobilePhoneModal}
             underlayColor="transparent"
           >
             <Text style={Style.profileModalCancelButton}>NOT NOW</Text>
@@ -196,7 +273,7 @@ export default class Profile extends Component {
         <View style={Style.profileModalWrapper}>
           <TouchableHighlight
             underlayColor="transparent"
-            onPress={this.goToTakePhoto}
+            onPress={this.goToPhotoCanvas}
           >
             <View style={Style.profileModalPhotoWrapper}>
               <Image
@@ -207,7 +284,7 @@ export default class Profile extends Component {
           </TouchableHighlight>
           <TouchableHighlight
             underlayColor="transparent"
-            onPress={() => {}}
+            onPress={this.goToGallery}
           >
             <View style={Style.profileModalPhotoWrapper}>
               <Image
@@ -217,7 +294,7 @@ export default class Profile extends Component {
             </View>
           </TouchableHighlight>
           <TouchableHighlight
-            onPress={this.closeModal}
+            onPress={this.closeTakePhotoModal}
             underlayColor="transparent"
           >
             <Text style={Style.profileModalCancelButton}>NOT NOW</Text>
@@ -229,12 +306,12 @@ export default class Profile extends Component {
       <View style={[Style.profilePhotoCanvasModal]}>
           <PhotoCanvas
             onTakePicture = {this.savePhotoPath}
-            onClose = {this.closeModal}
+            onClose = {this.closePhotoCanvasModal}
           />
       </View> : null;
 
     const photoPreviewModal = isOpenedPreviewPhotoModal ?
-      <View style={[Style.profilePhotoCanvasModal]}>
+      <View style={Style.profilePhotoCanvasModal}>
         <Image
           source={{ uri: photoPath }}
           style={Style.previewPhoto}
@@ -246,19 +323,37 @@ export default class Profile extends Component {
         />
         <TouchableIcon
           style={Style.cancelButtonModal}
-          onPress={this.closeModal}
+          onPress={this.closePreviewPhotoModal}
           source={clearIcon}
         />
-        <TouchableIcon
-          style={Style.editPhotoButtonModal}
-          onPress={() => {}}
-          source={editIcon}
-        />
+        <TouchableHighlight
+          onPress={this.goToGallery}
+          style={[Style.editPhotoButtonModal]}
+        >
+          <View style={{borderWidth: 2, borderColor: '#FFFFFF', borderRadius: 55}}>
+            <Image
+              style={{height: 55, width: 55, borderRadius: 55}}
+              source={{uri: firstPhotoPath}}
+            />
+          </View>
+        </TouchableHighlight>
         <TouchableIcon
           style={Style.takePhotoButtonModal}
-          onPress={(this.goToTakePhoto)}
+          onPress={(this.goToPhotoCanvas)}
           source={cameraIcon}
         />
+      </View> : null;
+
+    const photoGalleryModal = isOpenedGalleryPhotoModal ?
+      <View style={Style.profilePhotoGalleryModal}>
+        <View style={{backgroundColor: 'teal', height: 60, marginBottom: 20, flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, alignItems: 'center'}}>
+          <Text style={{fontSize: 18, color: '#FFFFFF', fontWeight: '600'}}>Choose a photo from your gallery</Text>
+          <TouchableIcon
+            onPress={this.closeGalleryPhotoModal}
+            source={clearIcon}
+          />
+        </View>
+        <PhotoGallery onSelect={this.getPhotoFromGallery}/>
       </View> : null;
 
     const showProfilePhoto = profile.photoPath ?
@@ -288,17 +383,49 @@ export default class Profile extends Component {
         <Modal
           animationType={"slide"}
           transparent={true}
-          visible={isOpenedEditUsernameModal ||
-            isOpenedEditMobilePhoneModal ||
-            isOpenedTakePhotoModal ||
-            isOpenedPhotoCanvasModal ||
-            isOpenedPreviewPhotoModal}
-          onRequestClose={this.closeModal}
+          visible={isOpenedGalleryPhotoModal}
+          onRequestClose={this.closeGalleryPhotoModal}
+        >
+          {photoGalleryModal}
+        </Modal>
+        <Modal
+          animationType={"slide"}
+          transparent={true}
+          visible={isOpenedEditUsernameModal}
+          onRequestClose={this.closeEditUsernameModal}
         >
           {editUsernameModal}
+        </Modal>
+        <Modal
+          animationType={"fade"}
+          transparent={true}
+          visible={isOpenedEditMobilePhoneModal}
+          onRequestClose={this.closeEditMobilePhoneModal}
+        >
           {editMobilePhoneModal}
+        </Modal>
+        <Modal
+          animationType={"none"}
+          transparent={true}
+          visible={isOpenedTakePhotoModal}
+          onRequestClose={this.closeTakePhotoModal}
+        >
           {takePhotoModal}
+        </Modal>
+        <Modal
+          animationType={"slide"}
+          transparent={true}
+          visible={isOpenedPhotoCanvasModal}
+          onRequestClose={this.closePhotoCanvasModal}
+        >
           {photoCanvasModal}
+        </Modal>
+        <Modal
+          animationType={"slide"}
+          transparent={true}
+          visible={isOpenedPreviewPhotoModal}
+          onRequestClose={this.closePreviewPhotoModal}
+        >
           {photoPreviewModal}
         </Modal>
         <ScrollView>

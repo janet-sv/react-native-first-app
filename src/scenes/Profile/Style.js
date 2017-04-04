@@ -128,6 +128,11 @@ export default StyleSheet.create({
     flexDirection: 'row',
   },
 
+  profilePhotoGalleryModal: {
+    flex: 1,
+    backgroundColor: '#EEEEEE',
+  },
+
   previewPhoto: {
     flex: 1,
     justifyContent: 'flex-end',
